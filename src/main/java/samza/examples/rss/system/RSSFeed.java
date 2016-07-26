@@ -28,6 +28,10 @@ import org.apache.log4j.Logger;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by J28848 on 7/24/16.
@@ -38,8 +42,11 @@ public class RSSFeed {
     private String url;
     private String keyword;
 
+    private final Map<String, Set<RSSFeedListener>> channelListeners;
+
 
     public RSSFeed(String url,String keyword){
+        this.channelListeners = new HashMap<String, Set<RSSFeedListener>>();
         this.url = url;
         this.keyword = keyword;
     }
@@ -49,14 +56,27 @@ public class RSSFeed {
      * @param listener
      */
     public void start(RSSFeedListener listener){
-        logger.debug("RSSFeed system start to work!");
+        logger.info("RSSFeed system start to work!");
         if(listener != null){
-            String content = download();
-            RSSFeedEvent event = new RSSFeedEvent(content);
-            listener.onEvent(event);
+//            String content = download("");
+//            RSSFeedEvent event = new RSSFeedEvent(content);
+//            listener.onEvent(event);
         }
     }
-    private String download(){
+    public void listen(String channel, RSSFeedListener listener){
+        Set<RSSFeedListener> listeners = channelListeners.get(channel);
+        if(listeners == null){
+            listeners = new HashSet<RSSFeedListener>();
+            channelListeners.put(channel,listeners);
+            String content = download(channel);
+            logger.info("RSSFeed system start to download!\n" + content);
+            RSSFeedEvent event = new RSSFeedEvent(content);
+            listener.onEvent(event);
+            logger.info("RSSFeed system start to fire!\n" );
+        }
+        listeners.add(listener);
+    }
+    private String download(String channel){
         BufferedReader in = null;
         String content = null;
         try{

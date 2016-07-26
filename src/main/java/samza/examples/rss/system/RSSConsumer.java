@@ -23,19 +23,33 @@ import org.apache.samza.system.IncomingMessageEnvelope;
 import org.apache.samza.system.SystemStreamPartition;
 import org.apache.samza.util.BlockingEnvelopeMap;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by J28848 on 7/24/16.
  */
 public class RSSConsumer extends BlockingEnvelopeMap implements RSSFeed.RSSFeedListener{
     private String systemName;
     private RSSFeed feed;
+    private final List<String> channels;
     public RSSConsumer(String systemName,RSSFeed feed){
+        this.channels = new ArrayList<String>();
         this.systemName = systemName;
         this.feed = feed;
     }
     @Override
+    public void register(SystemStreamPartition systemStreamPartition, String startingOffset) {
+        super.register(systemStreamPartition, startingOffset);
+
+        channels.add(systemStreamPartition.getStream());
+    }
+    @Override
     public void start() {
         feed.start(this);
+        for (String channel : channels) {
+            feed.listen(channel, this);
+        }
     }
 
     @Override
@@ -45,7 +59,7 @@ public class RSSConsumer extends BlockingEnvelopeMap implements RSSFeed.RSSFeedL
 
     @Override
     public void onEvent(RSSFeed.RSSFeedEvent event) {
-        SystemStreamPartition systemStreamPartition = new SystemStreamPartition(systemName,event.getContent(),new Partition(0));
+        SystemStreamPartition systemStreamPartition = new SystemStreamPartition(systemName,"rss",new Partition(0));
         try{
             put(systemStreamPartition, new IncomingMessageEnvelope(systemStreamPartition,null,null,event));
         }catch (Exception ex){
