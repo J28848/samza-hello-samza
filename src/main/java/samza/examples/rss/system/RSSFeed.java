@@ -28,10 +28,7 @@ import org.apache.log4j.Logger;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by J28848 on 7/24/16.
@@ -63,16 +60,21 @@ public class RSSFeed {
 //            listener.onEvent(event);
         }
     }
+
     public void listen(String channel, RSSFeedListener listener){
         Set<RSSFeedListener> listeners = channelListeners.get(channel);
         if(listeners == null){
             listeners = new HashSet<RSSFeedListener>();
+
+
             channelListeners.put(channel,listeners);
-            String content = download(channel);
-            logger.info("RSSFeed system start to download!\n" + content);
-            RSSFeedEvent event = new RSSFeedEvent(content);
-            listener.onEvent(event);
-            logger.info("RSSFeed system start to fire!\n" );
+            //execute the download in a separated Thread, and assume more and more content put into the queue.
+            new Thread(new DownloadThread(channel)).start();
+//            String content = download(channel);
+//            logger.info("RSSFeed system start to download!\n" + content);
+//            RSSFeedEvent event = new RSSFeedEvent(content);
+//            listener.onEvent(event);
+//            logger.info("RSSFeed system start to fire!\n" );
         }
         listeners.add(listener);
     }
@@ -127,7 +129,36 @@ public class RSSFeed {
             return content;
         }
     }
-
+    /*
+    * Simple Thread for the rss download task in an infinite loop.
+     */
+    private  class DownloadThread implements Runnable{
+        private String channel;
+        DownloadThread(String channel){
+            this.channel = channel;
+        }
+        @Override
+        public void run() {
+            while(true){
+                try{
+                    Set<RSSFeedListener> listeners = channelListeners.get(channel);
+                    if(listeners != null){
+                        Iterator<RSSFeedListener> it = listeners.iterator();
+                        while (it.hasNext()){
+                            String content = download(channel);
+                            logger.info("RSSFeed system start to download!\n" + content);
+                            RSSFeedEvent event = new RSSFeedEvent(content);
+                            it.next().onEvent(event);
+                            logger.info("RSSFeed system start to fire!\n" );
+                        }
+                    }
+                    Thread.sleep(30000l);
+                }catch (Exception ex){
+                    logger.error(ex.getMessage());
+                }
+            }
+        }
+    }
     public static void main(String[] args) {
         RSSFeed feed = new RSSFeed("http://news.baidu.com/ns?word=title%3A{KEYWORD}&tn=newsrss&sr=0&cl=2&rn=20&ct=0","北京");
         feed.start(new RSSFeedListener() {
