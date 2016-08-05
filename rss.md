@@ -1,21 +1,3 @@
-hello-samza
-===========
-
-Hello Samza is a starter project for [Apache Samza](http://samza.apache.org/) jobs.
-
-Please see [Hello Samza](http://samza.apache.org/startup/hello-samza/0.9/) to get started.
-
-### Pull requests and questions
-
-[Hello Samza](http://samza.apache.org/startup/hello-samza/0.10/) is developed as part of the [Apache Samza](http://samza.apache.org) project. Please direct questions, improvements and bug fixes there. Questions about [Hello Samza](http://samza.apache.org/startup/hello-samza/0.9/) are welcome on the [dev list](http://samza.apache.org/community/mailing-lists.html) and the [Samza JIRA](https://issues.apache.org/jira/browse/SAMZA) has a hello-samza component for filing tickets.
-
-### Contribution
-
-To start contributing on [Hello Samza](http://samza.apache.org/startup/hello-samza/0.10/) first read [Rules](http://samza.apache.org/contribute/rules.html) and [Contributor Corner](https://cwiki.apache.org/confluence/display/SAMZA/Contributor%27s+Corner). Notice that [Hello Samza](http://samza.apache.org/startup/hello-samza/0.10/) git repository does not support git pull request.
-
-rss-example
-===========
-
 # Before Deployment
 
 1. make suer the host file configuration, it's better use the external IP or hostname
@@ -48,11 +30,11 @@ tar -xvf ./target/hello-samza-0.10.1-dist.tar.gz -C deploy/samza
 ```
 
 >change the default kafka server ip
-
+ 
  ```
-vi deploy/kafka/config/server.properties
+vi deploy/kafka/config/server.properties 
 ### your external ip/hostname
-advertised.host.name=${yourip}
+advertised.host.name=${yourip} 
 
 vi deploy/kafka/config/server.properties
 metadata.broker.list=${yourip}:port
@@ -61,7 +43,7 @@ metadata.broker.list=${yourip}:port
 >change yarn resourcenamer.hostname and nodemanager.hostname
 
 ```
-vi deploy/yarn/etc/hadoop/yarn-site.xml
+vi deploy/yarn/etc/hadoop/yarn-site.xml 
   <property>
     <name>yarn.resourcemanager.hostname</name>
     <value>0.0.0.0</value>
@@ -69,7 +51,7 @@ vi deploy/yarn/etc/hadoop/yarn-site.xml
   <property>
     <name>yarn.nodemanager.hostname</name>
     <value>${yourip}</value>
-  </property>
+  </property> 
 ```
 
 >start the service and start the simple httpserver with `python`
@@ -93,7 +75,7 @@ bin/grid start pserver
 3. change the yarn-site.xml config file.
 
 ```
-vi deploy/yarn/etc/hadoop/yarn-site.xml
+vi deploy/yarn/etc/hadoop/yarn-site.xml 
   <property>
     <name>yarn.resourcemanager.hostname</name>
     <value>${yourmasteripd}</value>
@@ -101,7 +83,7 @@ vi deploy/yarn/etc/hadoop/yarn-site.xml
   <property>
     <name>yarn.nodemanager.hostname</name>
     <value>${yourip}</value>
-  </property>
+  </property> 
 ```
 
 4. start the service.
