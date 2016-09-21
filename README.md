@@ -144,3 +144,7 @@ deploy/kafka/bin/kafka-console-consumer.sh  --zookeeper localhost:2181 --topic r
 
 deploy/kafka/bin/kafka-console-consumer.sh  --zookeeper localhost:2181 --topic rss-item
 ```
+
+#TODO
+
+add unit test example later.
