@@ -18,7 +18,7 @@ rss-example
 
 # Before Deployment
 
-1. make suer the host file configuration, it's better use the external IP or hostname
+1. make sure the host file configuration, it's better use the external IP or hostname
 2. make sure JDK version 1.7+
 
 # Deployment step
@@ -143,4 +143,13 @@ deploy/kafka/bin/kafka-console-consumer.sh  --zookeeper localhost:2181 --topic r
 deploy/kafka/bin/kafka-console-consumer.sh  --zookeeper localhost:2181 --topic rss-raw
 
 deploy/kafka/bin/kafka-console-consumer.sh  --zookeeper localhost:2181 --topic rss-item
+```
+
+## Test
+
+You can write the unit test with `scala`, ref `MyRSSParserStreamTestTask.scala`
+**run** following command or test with your IDE
+
+```
+mvn test
 ```

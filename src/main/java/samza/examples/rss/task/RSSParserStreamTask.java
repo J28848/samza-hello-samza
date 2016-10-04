@@ -18,6 +18,7 @@
  */
 package samza.examples.rss.task;
 
+import com.google.gson.Gson;
 import org.apache.samza.system.IncomingMessageEnvelope;
 import org.apache.samza.system.OutgoingMessageEnvelope;
 import org.apache.samza.system.SystemStream;
@@ -33,14 +34,16 @@ import java.util.Map;
 /**
  * Created by J28848 on 7/24/16.
  */
-public class RSSParserStreamTask implements StreamTask{
+public class RSSParserStreamTask extends BaseStreamTask{
     private final static SystemStream OUTPUT_STREAM = new SystemStream("kafka", "rss-item");
+    private final Gson gson = new Gson();
     @Override
-    public void process(IncomingMessageEnvelope incomingMessageEnvelope, MessageCollector messageCollector, TaskCoordinator taskCoordinator) throws Exception {
+    public void doProcess(IncomingMessageEnvelope incomingMessageEnvelope, MessageCollector messageCollector, TaskCoordinator taskCoordinator) throws Exception {
         String content = (String)incomingMessageEnvelope.getMessage();
         try{
             List<Map<String, String>> obj = parser(content);
-            messageCollector.send(new OutgoingMessageEnvelope(OUTPUT_STREAM,obj));
+            String message = gson.toJson(obj);
+            messageCollector.send(new OutgoingMessageEnvelope(OUTPUT_STREAM,message));
         }catch (Exception ex){
             ex.printStackTrace();
         }
