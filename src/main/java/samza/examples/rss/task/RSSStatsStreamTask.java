@@ -18,6 +18,8 @@
  */
 package samza.examples.rss.task;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.apache.samza.config.Config;
 import org.apache.samza.storage.kv.KeyValueStore;
 import org.apache.samza.system.IncomingMessageEnvelope;
@@ -28,21 +30,22 @@ import org.apache.samza.task.*;
 import java.util.*;
 
 
-public class RSSStatsStreamTask implements StreamTask, InitableTask, WindowableTask {
+public class RSSStatsStreamTask extends BaseStreamTask implements WindowableTask {
     private int edits = 0;
     private int byteDiff = 0;
     private Set<String> titles = new HashSet<String>();
     private Map<String, Integer> counts = new HashMap<String, Integer>();
     private KeyValueStore<String, Integer> store;
-
+    private final Gson gson = new Gson();
     public void init(Config config, TaskContext context) {
         this.store = (KeyValueStore<String, Integer>) context.getStore("rss-stats");
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) {
-        List<Map<String, String>> edit = (List<Map<String, String>>) envelope.getMessage();
+    public void doProcess(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) {
+        String message = (String)envelope.getMessage();
+        List<Map<String, String>> edit = gson.fromJson(message, new TypeToken<List<Map<String, String>>>(){}.getType());
         for(Map<String,String> m : edit){
             Integer editsAllTime = store.get("count-edits-all-time");
             if (editsAllTime == null) editsAllTime = 0;
@@ -50,19 +53,6 @@ public class RSSStatsStreamTask implements StreamTask, InitableTask, WindowableT
 
             edits += 1;
             titles.add((String) m.get("title"));
-
-//            for (Map.Entry<String, Boolean> flag : flags.entrySet()) {
-//                if (Boolean.TRUE.equals(flag.getValue())) {
-//                    Integer count = counts.get(flag.getKey());
-//
-//                    if (count == null) {
-//                        count = 0;
-//                    }
-//
-//                    count += 1;
-//                    counts.put(flag.getKey(), count);
-//                }
-//            }
         }
 
     }

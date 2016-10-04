@@ -29,11 +29,11 @@ import samza.examples.rss.system.RSSFeed;
 /**
  * Just send the download rss to kafka for the content parser.
  */
-public class RSSFeedStreamTask implements StreamTask{
+public class RSSFeedStreamTask extends BaseStreamTask{
     private final static SystemStream OUTPUT_STREAM = new SystemStream("kafka","rss-raw");
 
     @Override
-    public void process(IncomingMessageEnvelope incomingMessageEnvelope, MessageCollector messageCollector, TaskCoordinator taskCoordinator) throws Exception {
+    public void doProcess(IncomingMessageEnvelope incomingMessageEnvelope, MessageCollector messageCollector, TaskCoordinator taskCoordinator) throws Exception {
         String content = ((RSSFeed.RSSFeedEvent)incomingMessageEnvelope.getMessage()).getContent();
         messageCollector.send(new OutgoingMessageEnvelope(OUTPUT_STREAM, content));
     }
